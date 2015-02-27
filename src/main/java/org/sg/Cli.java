@@ -8,6 +8,7 @@ import org.apache.commons.cli.*;
 public class Cli {
     private String[] args = null;
     private Options options = new Options();
+    private String documentName = null;
 
     public Cli(String[] args) {
         this.args = args;
@@ -16,7 +17,7 @@ public class Cli {
         options.addOption("d", "document", false, "Document for snippet generation");
     }
 
-    public void parse() {
+    private void parse() {
         CommandLineParser parser = new BasicParser();
 
         CommandLine cmd;
@@ -24,6 +25,12 @@ public class Cli {
             cmd = parser.parse(options, args);
 
             if (cmd.hasOption("h")) {
+                help();
+            }
+
+            if (cmd.hasOption("d")) {
+                this.documentName = cmd.getOptionValue("d");
+            } else {
                 help();
             }
         } catch (ParseException e) {
@@ -38,8 +45,8 @@ public class Cli {
         System.exit(0);
     }
 
-    public Options getOptions() {
-        this.parse();
-        return options;
+
+    public String getDocumentName() {
+        return documentName;
     }
 }
