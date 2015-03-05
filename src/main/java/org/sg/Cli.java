@@ -12,15 +12,15 @@ public class Cli {
 
     public Cli(String[] args) {
         this.args = args;
-
         options.addOption("h", "help", false, "Show help");
-        options.addOption("d", "document", false, "Document for snippet generation");
+        options.addOption("d", "document", true, "Document for snippet generation");
+        this.parse();
     }
 
     private void parse() {
         CommandLineParser parser = new BasicParser();
 
-        CommandLine cmd;
+        CommandLine cmd = null;
         try {
             cmd = parser.parse(options, args);
 
@@ -44,7 +44,6 @@ public class Cli {
         formatter.printHelp("SnippetGenerator", options);
         System.exit(0);
     }
-
 
     public String getDocumentName() {
         return documentName;
