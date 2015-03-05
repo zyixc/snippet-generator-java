@@ -1,30 +1,48 @@
 package org.sg;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by zyixc @ matthijsnieuwboer@gmail.com on 2/5/2015.
  */
 public class SnippetGenerator {
-    public static void main(String[] args) throws IOException {
-        Cli cli = new Cli(args);
-        HashMap<Integer,String> words = readFile(cli.getDocumentName());
+    Map<String,List<Integer>> wordHashMap = new HashMap<>();
+    Map<Integer,String> positionHashMap = new HashMap<>();
+
+    public SnippetGenerator(Stream<String> lines){
+        List<String> words = lines.flatMap(line -> Stream.of(line.split("\\W+")).map(String::toLowerCase)).collect(Collectors.toList());
+        for(int position=0; position<words.size(); position++){
+            positionHashMap.put(position, words.get(position));
+            List<Integer> tempPosition = wordHashMap.get(words.get(position));
+            if(tempPosition == null) {
+                List<Integer> positionArray = new ArrayList<>();
+                positionArray.add(position);
+                wordHashMap.put(words.get(position), positionArray);
+            } else {
+                tempPosition.add(position);
+                wordHashMap.put(words.get(position), tempPosition);
+            }
+        }
     }
 
-    private static HashMap<Integer,String> readFile(String documentName){
-        HashMap<Integer,String> words = null;
-        try {
-            words = Files.lines(Paths.get(documentName))
-                .flatMap(line -> Arrays.stream(line.split(" .")))
-                .collect(Collectors.toMap());
-        } catch (IOException e) {
-            e.printStackTrace();
+    public List<String> generateSnippets(String searchTerm, int snippetSize) {
+        List<String> snippets = new ArrayList<>();
+        List<Integer> positions = wordHashMap.get(searchTerm.toLowerCase());
+        for(Integer position: positions){
+            StringBuilder result = new StringBuilder();
+            for(int iPosition=(position-snippetSize);iPosition<=(position+snippetSize);iPosition++){
+                String resultIPosition = positionHashMap.get(iPosition);
+                if(resultIPosition!=null){
+                    if(resultIPosition.equals(searchTerm.toLowerCase())){
+                        resultIPosition = '"' + resultIPosition + '"';
+                    }
+                    result.append(resultIPosition + " ");
+                }
+            }
+            snippets.add(result.toString());
         }
-        return words;
+        return snippets;
     }
 }
