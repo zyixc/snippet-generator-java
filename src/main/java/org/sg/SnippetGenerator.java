@@ -32,6 +32,7 @@ public class SnippetGenerator {
     public List<String> generateSnippets(String searchTerm, int snippetSize) {
         List<String> snippets = new ArrayList<>();
         List<Integer> positions = wordHashMap.get(searchTerm.toLowerCase());
+        if(positions==null) return snippets;
         for(Integer position: positions){
             StringBuilder result = new StringBuilder();
             for(int iPosition=(position-snippetSize);iPosition<=(position+snippetSize);iPosition++){
